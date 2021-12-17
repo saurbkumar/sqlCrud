@@ -1,0 +1,17 @@
+{
+  "name": "ethopia-waza",
+  "description": "a delightfully fruity coffee varietal",
+  "version": "1.2.3",
+  "devDependencies": {
+    "coffee-script": "~1.6.3",
+    "eslint": "^8.4.1"
+  },
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "swagger-ui-express": "^4.2.0"
+  }
+}
