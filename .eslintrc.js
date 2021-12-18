@@ -1,15 +1,18 @@
 module.exports = {
   env: {
-    commonjs: true,
-    es2021: true,
+    // browser: true,
+    node: true,
+    commonjs: true
+    // es2021: true
   },
-  extends: "eslint:recommended",
+  extends: ['eslint:recommended', 'prettier'],
   parserOptions: {
-    ecmaVersion: 13,
+    ecmaVersion: 13
   },
   rules: {
-    indent: ["error", "tab"],
-    quotes: ["error", "single"],
-    semi: ["error", "always"],
-  },
+    semi: ['error', 'always']
+    // rules: { 'no-console': 'off' } // warn/ error
+    // 'no-unused-vars': 'off',
+    // 'no-undef': ['error', 'always']
+  }
 };

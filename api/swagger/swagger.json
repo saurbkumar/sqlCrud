@@ -5,14 +5,14 @@
     "description": "Move your app forward with the Uber API",
     "version": "1.0.0"
   },
-  "basePath": "/v1",
+  "basePath": "/v1/hello-service",
   "produces": ["application/json"],
   "paths": {
     "/hello": {
-      "controllerId": "controllerId",
+      "x-controller": "helloController",
       "get": {
         "summary": "Simple hello world",
-        "operationId": "hello",
+        "operationId": "getHello",
         "description": "The Products endpoint returns information about the Uber products offered at a given location. The response includes the display name and other details about each product, and lists the products in the proper display order.",
         "tags": ["Products"],
         "parameters": [
@@ -44,10 +44,10 @@
       }
     },
     "/hello2/{id1}/obj/{id2}/obj2": {
-      "controllerId": "controllerId1",
+      "x-controller": "helloController",
       "get": {
         "summary": "Simple hello world",
-        "operationId": "hello",
+        "operationId": "getHelloId",
         "description": "The Products endpoint returns information about the Uber products offered at a given location. The response includes the display name and other details about each product, and lists the products in the proper display order.",
         "tags": ["Products1"],
         "parameters": [

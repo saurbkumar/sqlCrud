@@ -1,51 +1,62 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const swaggerUi = require("swagger-ui-express");
-const cors = require("cors");
-const swaggerDocument = require("./api/swagger/swagger.json");
-const helloController = require("./api/controllers/hello");
-const port = 3000;
+const swaggerUi = require('swagger-ui-express');
+const cors = require('cors');
+const config = require('config');
+const swaggerDocument = require('./api/swagger/swagger.json');
+const SwaggerParser = require('@apidevtools/swagger-parser');
+const v1BasePath = config.App.v1Path;
+
+const port = config.App.port;
 
 app.use(cors());
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Origin', '*');
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
   );
   next();
 });
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use(function (req, res, next) {
-  console.log("Time: %d", Date.now());
-  next();
+SwaggerParser.validate(swaggerDocument, (err) => {
+  if (err) {
+    console.error(err);
+    throw err;
+  }
 });
-// app.get("/hello", (req, res) => {
-//   res.send("Hello World!");
-// });
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // read swagger file and attach all path
-for (const [path, value] of Object.entries(swaggerDocument.paths)) {
-  const controllerId = value.controllerId;
-  for (const [method, methodAttr] of Object.entries(value)) {
-    const operation = methodAttr.operationId;
-    const basePath = "/v1"; // hard coded, later read through config
+for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
+  const controllerId = pathAttributes['x-controller'];
+  let controllerPath = __dirname + `/api/controllers/${controllerId}`;
+  let controller = require(controllerPath);
+  for (const [verb, value] of Object.entries(pathAttributes)) {
+    if (verb == 'x-controller') continue;
+    const operationId = value?.operationId;
     let pathPattern = [];
-    path.split("/").forEach((element) => {
+    path.split('/').forEach((element) => {
+      // convert : /path1/{id1}/path2/{id2}/path3 ==> /path1/:id1/path2/id2/path3
       if (element.length) {
-        if (element.endsWith("}") && element.startsWith("{")) {
-          pathPattern.push(`:${element.slice(1, -1)}`);
+        if (element.endsWith('}') && element.startsWith('{')) {
+          pathPattern.push(`:${element.slice(1, -1)}`); // remove {}
         } else {
           pathPattern.push(element);
         }
       }
     });
-    console.log(pathPattern.join("/"));
+    console.log(pathPattern.join('/'));
+
+    console.log('controllerPath====>', controllerPath);
+    console.log('v1BasePath====>', `${v1BasePath}/${pathPattern.join('/')}`);
+    // adding path dynamically like app.get("/v1/path1/:id1/path2/:id2/path3", helloController.hello1);
+    app[`${verb}`](
+      `${v1BasePath}/${pathPattern.join('/')}`,
+      controller[`${operationId}`]
+    );
   }
 }
-app.get("/v1/hello", helloController.hello);
-app.get("/v1/hello2/:id1/obj/:id2/obj2", helloController.hello1);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
