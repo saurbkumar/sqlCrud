@@ -3,10 +3,13 @@ const app = express();
 const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
 const config = require('config');
-const swaggerDocument = require('./api/swagger/swagger.json');
 const SwaggerParser = require('@apidevtools/swagger-parser');
-const v1BasePath = config.App.v1Path;
+const OpenApiValidator = require('express-openapi-validator');
 
+const swaggerDocument = require('./api/swagger/swagger.json');
+const logger = require('./logger')(__filename);
+
+const v1BasePath = config.App.v1Path;
 const port = config.App.port;
 
 app.use(cors());
@@ -19,18 +22,32 @@ app.use(function (req, res, next) {
   next();
 });
 
+// check swagger document : if not valid throw error and do not start application
 SwaggerParser.validate(swaggerDocument, (err) => {
   if (err) {
-    console.error(err);
+    logger.error(err);
     throw err;
   }
 });
+app.use(express.json());
+app.use(express.text());
+app.use(express.urlencoded({ extended: false }));
+
+// validation
+app.use(
+  OpenApiValidator.middleware({
+    apiSpec: `${__dirname}/api/swagger/swagger.json`,
+    validateRequests: true, // (default)
+    validateResponses: true // false by default
+  })
+);
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // read swagger file and attach all path
 for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
   const controllerId = pathAttributes['x-controller'];
-  let controllerPath = __dirname + `/api/controllers/${controllerId}`;
+  let controllerPath = `${__dirname}/api/controllers/${controllerId}`;
   let controller = require(controllerPath);
   for (const [verb, value] of Object.entries(pathAttributes)) {
     if (verb == 'x-controller') continue;
@@ -46,10 +63,6 @@ for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
         }
       }
     });
-    console.log(pathPattern.join('/'));
-
-    console.log('controllerPath====>', controllerPath);
-    console.log('v1BasePath====>', `${v1BasePath}/${pathPattern.join('/')}`);
     // adding path dynamically like app.get("/v1/path1/:id1/path2/:id2/path3", helloController.hello1);
     app[`${verb}`](
       `${v1BasePath}/${pathPattern.join('/')}`,
@@ -57,7 +70,14 @@ for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
     );
   }
 }
+// eslint-disable-next-line no-unused-vars
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500).json({
+    message: err.message,
+    errors: err.errors
+  });
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  logger.info(`Example app listening at http://localhost:${port}`);
 });

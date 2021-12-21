@@ -10,7 +10,9 @@
     "config": "^3.3.6",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "swagger-ui-express": "^4.2.0"
+    "express-openapi-validator": "^4.13.4",
+    "swagger-ui-express": "^4.2.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
