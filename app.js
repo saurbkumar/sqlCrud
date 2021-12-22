@@ -12,8 +12,20 @@ const logger = require('./logger')(__filename);
 const v1BasePath = config.App.v1Path;
 const port = config.App.port;
 
+// const shortId = require('./api/helpers/shortId');
+
+module.exports = {
+  app: app
+};
 app.use(cors());
+
 app.use(function (req, res, next) {
+  logger.info(`path:${req.url}`);
+  next();
+});
+
+app.use(function (req, res, next) {
+  // console.log('---start--in cors-' + als.get('id'));
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
@@ -37,12 +49,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   OpenApiValidator.middleware({
     apiSpec: `${__dirname}/api/swagger/swagger.json`,
-    validateRequests: true, // (default)
+    // validateRequests: true, // (default)
+    validateRequests: {
+      allowUnknownQueryParameters: false
+    }, // (default)
     validateResponses: true // false by default
   })
 );
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  `/${config.App.name}/docs`,
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 
 // read swagger file and attach all path
 for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
@@ -70,6 +89,7 @@ for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
     );
   }
 }
+
 // eslint-disable-next-line no-unused-vars
 app.use(function (err, req, res, next) {
   res.status(err.status || 500).json({
@@ -77,7 +97,13 @@ app.use(function (err, req, res, next) {
     errors: err.errors
   });
 });
-
-app.listen(port, () => {
-  logger.info(`Example app listening at http://localhost:${port}`);
+app.use(function test(req, res) {
+  // console.log('---start--in--final-' + als.get('id'));
+  console.log(`Responded with status ${res.statusCode}`);
 });
+
+if (require.main === module) {
+  app.listen(port, () => {
+    logger.info(`Example app listening at http://localhost:${port}`);
+  });
+}
