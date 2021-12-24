@@ -1,8 +1,9 @@
 const winston = require('winston');
 const config = require('config');
 const path = require('path');
+const fs = require('fs');
 
-const logger = winston.createLogger({
+let logger = winston.createLogger({
   level: config.Log.level,
   silent: config.Log.silent,
   transports: [new winston.transports.Console()],
@@ -17,6 +18,25 @@ const logger = winston.createLogger({
 module.exports = function (fileName) {
   const name = path.basename(fileName);
   return {
+    switchToFile: () => {
+      try {
+        fs.unlinkSync(fileName);
+      } catch (error) {
+        // Do Noting
+      }
+      logger = winston.createLogger({
+        level: config.Log.level,
+        silent: config.Log.silent,
+        transports: [new winston.transports.File({ filename: fileName })],
+        format: winston.format.combine(
+          winston.format.timestamp({
+            format: 'MMM-DD-YYYY HH:mm:ss.SSS'
+          }),
+          winston.format.json()
+        ),
+        defaultMeta: { service: config.App.name }
+      });
+    },
     info: (message, meta) => {
       logger.info(message, mergeMeta({ file: name }, meta));
     },

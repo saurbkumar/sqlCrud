@@ -1,19 +1,21 @@
 const app = require('../app').app;
-const request = require('supertest');
-let server = 1;
+const supertest = require('supertest');
+const shortId = require('../api/helpers/shortId');
+const logger = require('../logger');
+logger('unittest.log').switchToFile();
 require('should');
-/**
- * 1. configure port
- * 2. just use request, no need to pass app again
- * 3. send correlation for every request
- */
 
 describe('GET /user', function () {
+  let request;
+  let port = Math.floor(Math.random() * 10000);
   before(function () {
-    // runs once before the first test in this block
+    request = supertest.agent(app).host(`http://localhost:${port}`).set({
+      'X-Correlation-Id': shortId.generate(),
+      'Content-Type': 'application/json'
+    });
   });
   it('responds with json', async function () {
-    const res = await request(app)
+    const res = await request
       .get('/v1/hello-service/hello?name=20')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)

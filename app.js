@@ -7,12 +7,11 @@ const SwaggerParser = require('@apidevtools/swagger-parser');
 const OpenApiValidator = require('express-openapi-validator');
 
 const swaggerDocument = require('./api/swagger/swagger.json');
+
 const logger = require('./logger')(__filename);
 
 const v1BasePath = config.App.v1Path;
 const port = config.App.port;
-
-// const shortId = require('./api/helpers/shortId');
 
 module.exports = {
   app: app
@@ -26,6 +25,8 @@ app.use(function (req, res, next) {
 
 app.use(function (req, res, next) {
   // console.log('---start--in cors-' + als.get('id'));
+  req.headers['x-correlation-id']; // correlationId
+
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
@@ -34,6 +35,10 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(express.json());
+app.use(express.text());
+app.use(express.urlencoded({ extended: false }));
+
 // check swagger document : if not valid throw error and do not start application
 SwaggerParser.validate(swaggerDocument, (err) => {
   if (err) {
@@ -41,11 +46,14 @@ SwaggerParser.validate(swaggerDocument, (err) => {
     throw err;
   }
 });
-app.use(express.json());
-app.use(express.text());
-app.use(express.urlencoded({ extended: false }));
 
-// validation
+app.use(
+  `/${config.App.name}/docs`,
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
+
+// validation middleware
 app.use(
   OpenApiValidator.middleware({
     apiSpec: `${__dirname}/api/swagger/swagger.json`,
@@ -56,13 +64,19 @@ app.use(
     validateResponses: true // false by default
   })
 );
+app.use(function (req, res, next) {
+  // console.log('---start--in--final-' + als.get('id'));
+  logger.info(`Responded with status ${res.statusCode}`);
+  next();
+});
 
-app.use(
-  `/${config.App.name}/docs`,
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument)
-);
-
+// eslint-disable-next-line no-unused-vars
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500).json({
+    message: err.message,
+    errors: err.errors
+  });
+});
 // read swagger file and attach all path
 for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
   const controllerId = pathAttributes['x-controller'];
@@ -89,18 +103,6 @@ for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
     );
   }
 }
-
-// eslint-disable-next-line no-unused-vars
-app.use(function (err, req, res, next) {
-  res.status(err.status || 500).json({
-    message: err.message,
-    errors: err.errors
-  });
-});
-app.use(function test(req, res) {
-  // console.log('---start--in--final-' + als.get('id'));
-  console.log(`Responded with status ${res.statusCode}`);
-});
 
 if (require.main === module) {
   app.listen(port, () => {
