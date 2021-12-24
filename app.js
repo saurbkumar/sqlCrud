@@ -61,7 +61,7 @@ app.use(
     validateRequests: {
       allowUnknownQueryParameters: false
     }, // (default)
-    validateResponses: true // false by default
+    validateResponses: false // false by default
   })
 );
 app.use(function (req, res, next) {

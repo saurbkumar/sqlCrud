@@ -40,7 +40,7 @@
         ],
         "responses": {
           "200": {
-            "description": "An array of products",
+            "description": "Hello World",
             "content": {
               "application/json": {
                 "schema": {
@@ -72,6 +72,10 @@
           "name": {
             "type": "string",
             "description": "user name"
+          },
+          "age": {
+            "type": "integer",
+            "description": "user age"
           }
         }
       },
