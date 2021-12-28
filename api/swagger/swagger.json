@@ -1,53 +1,276 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Hello Service API",
-    "description": "Hello service interface",
+    "title": "User Service API",
+    "description": "User service interface",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "/v1/hello-service"
+      "url": "/v1/user-service"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Everything about your users"
     }
   ],
   "paths": {
-    "/hello": {
-      "x-controller": "helloController",
+    "/users": {
+      "x-controller": "userController",
       "get": {
-        "summary": "Simple hello world",
-        "operationId": "getHello",
-        "description": "Hello world",
-        "tags": ["Products"],
+        "tags": ["Users"],
+        "summary": "Get all users",
+        "operationId": "getUsers",
+        "description": "Get all users",
         "parameters": [
           {
-            "name": "name",
+            "name": "$top",
             "in": "query",
-            "description": "name",
-            "required": true,
+            "description": "Number of records to return",
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10
             }
           },
           {
-            "name": "age",
+            "name": "$skip",
             "in": "query",
-            "description": "age",
+            "description": "Number of records to skip",
             "required": false,
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 0,
+              "default": 0
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Hello World",
+            "description": "User information",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/hello"
+                  "type": "object",
+                  "$ref": "#/components/schemas/Users"
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create user",
+        "description": "Create a user",
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateUser"
+                  }
+                ],
+                "required": ["name", "address", "age"]
+              }
+            }
+          },
+          "description": "Created user object",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete user",
+        "description": "Delete all users",
+        "operationId": "deleteUsers",
+        "responses": {
+          "200": {
+            "description": "counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["count"],
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "description": "number of records deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "x-controller": "userController",
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get a user",
+        "operationId": "getUser",
+        "description": "Get a user by Id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update user",
+        "description": "Update a user",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateUser"
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Update user object",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a user",
+        "description": "Delete a users by Id",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No information"
           },
           "default": {
             "description": "Unexpected error",
@@ -65,23 +288,83 @@
   },
   "components": {
     "schemas": {
-      "hello": {
+      "User": {
         "type": "object",
-        "required": ["name"],
         "properties": {
+          "id": {
+            "type": "string",
+            "description": "user id"
+          },
           "name": {
             "type": "string",
             "description": "user name"
           },
+          "address": {
+            "type": "string",
+            "description": "user address"
+          },
           "age": {
             "type": "integer",
             "description": "user age"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "user creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "user update timestamp"
+          },
+          "version": {
+            "type": "integer",
+            "description": "user version"
+          }
+        }
+      },
+      "Users": {
+        "type": "object",
+        "required": ["count", "value"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 10
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/User"
+                }
+              ],
+              "required": ["id", "name", "address", "age"]
+            }
+          }
+        }
+      },
+      "CreateUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "user name",
+            "example": "Bob"
+          },
+          "address": {
+            "type": "string",
+            "description": "user address",
+            "example": "Address"
+          },
+          "age": {
+            "type": "integer",
+            "description": "user age",
+            "example": 30
           }
         }
       },
       "Error": {
         "properties": {
-          "code": {
+          "statusCode": {
             "type": "integer",
             "format": "int32"
           },

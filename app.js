@@ -7,6 +7,7 @@ const SwaggerParser = require('@apidevtools/swagger-parser');
 const OpenApiValidator = require('express-openapi-validator');
 
 const swaggerDocument = require('./api/swagger/swagger.json');
+const services = require('./api/service/services');
 
 const logger = require('./logger')(__filename);
 
@@ -14,12 +15,14 @@ const v1BasePath = config.App.v1Path;
 const port = config.App.port;
 
 module.exports = {
-  app: app
+  app: app,
+  start: services.start,
+  stop: services.stop
 };
 app.use(cors());
 
 app.use(function (req, res, next) {
-  logger.info(`path:${req.url}`);
+  logger.info(`Start ${req.url}`, { method: req.method });
   next();
 });
 
@@ -64,19 +67,29 @@ app.use(
     validateResponses: false // false by default
   })
 );
-app.use(function (req, res, next) {
-  // console.log('---start--in--final-' + als.get('id'));
-  logger.info(`Responded with status ${res.statusCode}`);
-  next();
-});
 
 // eslint-disable-next-line no-unused-vars
 app.use(function (err, req, res, next) {
+  logger.info(`End ${req.url}`, {
+    statusCode: res.statusCode,
+    method: req.method
+  });
   res.status(err.status || 500).json({
     message: err.message,
     errors: err.errors
   });
 });
+
+app.use(function (req, res, next) {
+  res.on('finish', function () {
+    logger.info(`End ${req.url}`, {
+      statusCode: res.statusCode,
+      method: req.method
+    });
+  });
+  next();
+});
+
 // read swagger file and attach all path
 for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
   const controllerId = pathAttributes['x-controller'];
@@ -105,7 +118,9 @@ for (const [path, pathAttributes] of Object.entries(swaggerDocument.paths)) {
 }
 
 if (require.main === module) {
-  app.listen(port, () => {
+  app.listen(port, async () => {
     logger.info(`Example app listening at http://localhost:${port}`);
+    logger.info(`Starting background services`);
+    await services.start();
   });
 }

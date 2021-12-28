@@ -43,7 +43,6 @@ module.exports = function (fileName) {
     error: (message, meta) => {
       logger.error(message, mergeMeta({ file: name }, meta));
     },
-
     debug: (message, meta) => {
       logger.debug(message, mergeMeta({ file: name }, meta));
     },
