@@ -303,6 +303,10 @@
             "type": "string",
             "description": "user address"
           },
+          "country": {
+            "type": "string",
+            "description": "user country"
+          },
           "age": {
             "type": "integer",
             "description": "user age"
@@ -348,16 +352,26 @@
           "name": {
             "type": "string",
             "description": "user name",
+            "pattern": "^[A-Za-z0-9_ ]+$",
             "example": "Bob"
           },
           "address": {
             "type": "string",
+            "pattern": "^[A-Za-z0-9_ ]+$",
             "description": "user address",
             "example": "Address"
+          },
+          "country": {
+            "type": "string",
+            "pattern": "^[A-Za-z ]+$",
+            "description": "user country",
+            "example": "USA"
           },
           "age": {
             "type": "integer",
             "description": "user age",
+            "minimum": 0,
+            "maximum": 150,
             "example": 30
           }
         }

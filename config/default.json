@@ -14,5 +14,14 @@
     "user": "admin",
     "password": "admin",
     "logging": false
+  },
+  "Unittest": {
+    "Database": {
+      "server": "localhost",
+      "name": "unittest",
+      "user": "admin",
+      "password": "admin",
+      "logging": false
+    }
   }
 }

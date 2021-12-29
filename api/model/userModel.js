@@ -11,7 +11,8 @@ const User = SQLHelper.sequelize.define(
     },
     name: { type: SQLHelper.dataTypes.STRING, allowNull: false },
     age: { type: SQLHelper.dataTypes.SMALLINT, allowNull: false },
-    address: { type: SQLHelper.dataTypes.STRING, allowNull: false }
+    address: { type: SQLHelper.dataTypes.STRING, allowNull: false },
+    country: { type: SQLHelper.dataTypes.STRING, allowNull: true }
   },
   { timestamps: true, version: true }
 );

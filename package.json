@@ -20,6 +20,12 @@
     "swagger-ui-express": "^4.2.0",
     "winston": "^3.3.3"
   },
+  "nyc": {
+    "exclude": [
+      "app.js",
+      "logger.js"
+    ]
+  },
   "devDependencies": {
     "coffee-script": "~1.6.3",
     "eslint": "^8.4.1",
