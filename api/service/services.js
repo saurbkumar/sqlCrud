@@ -1,7 +1,7 @@
 /**
  * Any service want's to run before app start
  */
-const model = require('../model/userModel');
+const model = require('../model/model');
 
 module.exports = {
   start: start,
