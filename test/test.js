@@ -14,12 +14,12 @@ describe('UserService', async function () {
   let request;
   let port = Math.floor(Math.random() * 10000);
   before(async function () {
+    // initialize middle ware - DB connect
+    await App.start();
     request = supertest.agent(App.app).host(`http://localhost:${port}`).set({
       'X-Correlation-Id': shortId.generate(),
       'Content-Type': 'application/json'
     });
-    // initialize middle ware - DB connect
-    await App.start();
   });
 
   after(async function () {

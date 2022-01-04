@@ -1,5 +1,5 @@
 /**
- * Any service want's to run before app start
+ * Any service/process want's to run before app start
  */
 const model = require('../model/model');
 

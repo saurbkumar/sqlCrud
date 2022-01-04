@@ -1,4 +1,4 @@
-const service = require('../service/service');
+const service = require('../services/service');
 const logger = require('../../logger')(__filename);
 module.exports = {
   getUser: getUser,
