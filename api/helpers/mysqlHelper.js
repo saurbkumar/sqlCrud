@@ -1,25 +1,32 @@
 // Just for connection management
 
-const config = require('config');
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-let sequelize = new Sequelize(
-  config.Database.name,
-  config.Database.user,
-  config.Database.password,
-  {
-    host: config.Database.server,
-    dialect: 'mysql',
-    logging: config.Database.logging
+class MYSQLHelper {
+  constructor() {
+    this.dbConfig = null;
+    this.sequelize = null;
   }
-);
 
-function close() {
-  sequelize.close();
+  connect(dbConfig) {
+    this.dbConfig = dbConfig;
+    //connect
+    this.sequelize = new Sequelize(
+      this.dbConfig.name,
+      this.dbConfig.user,
+      this.dbConfig.password,
+      {
+        host: this.dbConfig.server,
+        dialect: 'mysql',
+        logging: this.dbConfig.logging
+      }
+    );
+    return this.sequelize;
+  }
+
+  async close() {
+    await this.sequelize.close();
+  }
 }
 
-module.exports = {
-  sequelize: sequelize,
-  dataTypes: DataTypes,
-  close: close
-};
+module.exports = new MYSQLHelper(); // singleton
