@@ -1,18 +1,22 @@
+const config = require('config');
+
 const logger = require('../../logger')(__filename);
-const SQLHelper = require('../helpers/mysqlHelper');
+const { DataTypes } = require('sequelize');
+const sqlHelper = require('../helpers/mysqlHelper');
 const shortId = require('../helpers/shortId');
-const User = SQLHelper.sequelize.define(
+const sequelize = sqlHelper.connect(config.Database);
+const User = sequelize.define(
   'User',
   {
     id: {
-      type: SQLHelper.dataTypes.STRING,
+      type: DataTypes.STRING,
       primaryKey: true,
       defaultValue: shortId.generate
     },
-    name: { type: SQLHelper.dataTypes.STRING, allowNull: false },
-    age: { type: SQLHelper.dataTypes.SMALLINT, allowNull: false },
-    address: { type: SQLHelper.dataTypes.STRING, allowNull: false },
-    country: { type: SQLHelper.dataTypes.STRING, allowNull: true }
+    name: { type: DataTypes.STRING, allowNull: false },
+    age: { type: DataTypes.SMALLINT, allowNull: false },
+    address: { type: DataTypes.STRING, allowNull: false },
+    country: { type: DataTypes.STRING, allowNull: true }
   },
   { timestamps: true, version: true }
 );
@@ -24,9 +28,20 @@ module.exports = {
   deleteUser: deleteUser,
   getUsers: getUsers,
   deleteUsers: deleteUsers,
-  start: User, // warning : apart from init, do not use for anything else
-  close: SQLHelper.close
+  copy: copy,
+  start: start,
+  close: close
 };
+
+async function start() {
+  // create table if not exist
+  await User.sync();
+}
+
+async function close() {
+  // close connection
+  await sequelize.close();
+}
 
 async function getUser(id) {
   return await User.findByPk(id);
@@ -52,8 +67,7 @@ async function updateUser(id, user) {
   if (user.address) result.address = user.address;
   if (user.name) result.name = user.name;
   logger.debug(`updateUser: updated user: ${JSON.stringify(user)}`);
-  await result.save();
-  return user;
+  return await result.save();
 }
 
 async function deleteUser(id) {
@@ -79,4 +93,8 @@ async function getUsers(top, skip) {
 async function deleteUsers() {
   let result = await User.destroy({ where: {} });
   return { count: result };
+}
+
+function copy(dbObj) {
+  return dbObj.dataValues;
 }
