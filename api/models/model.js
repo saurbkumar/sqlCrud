@@ -37,12 +37,12 @@ async function deleteUser(id) {
   memoryCacheModel.deleteObject(id);
   return dbModel.deleteUser(id);
 }
-async function getUsers(top, skip) {
-  let result = dbModel.getUsers(top, skip);
+async function getUsers(top, skip, filter, sortBy, projection) {
+  let result = dbModel.getUsers(top, skip, filter, sortBy, projection);
   return result;
 }
 
-async function deleteUsers() {
+async function deleteUsers(filter) {
   memoryCacheModel.clear();
-  return dbModel.deleteUsers();
+  return dbModel.deleteUsers(filter);
 }

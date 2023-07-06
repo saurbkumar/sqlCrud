@@ -1,7 +1,6 @@
 // Just for connection management
 
 const { Sequelize } = require('sequelize');
-
 class MYSQLHelper {
   constructor() {
     this.dbConfig = null;
@@ -27,6 +26,11 @@ class MYSQLHelper {
   async close() {
     await this.sequelize.close();
   }
+
+  async live() {
+    return true;
+  }
+  async ready() {}
 }
 
 module.exports = new MYSQLHelper(); // singleton

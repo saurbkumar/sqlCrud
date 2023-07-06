@@ -2,8 +2,10 @@ const config = require('config');
 
 const logger = require('../../logger')(__filename);
 const { DataTypes } = require('sequelize');
-const sqlHelper = require('../helpers/mysqlHelper');
+const sqlHelper = require('../helpers/sqlHelper');
 const shortId = require('../helpers/shortId');
+const queryHelper = require('../helpers/queryHelper');
+
 const sequelize = sqlHelper.connect(config.Database);
 const User = sequelize.define(
   'User',
@@ -16,7 +18,18 @@ const User = sequelize.define(
     name: { type: DataTypes.STRING, allowNull: false },
     age: { type: DataTypes.SMALLINT, allowNull: false },
     address: { type: DataTypes.STRING, allowNull: false },
-    country: { type: DataTypes.STRING, allowNull: true }
+    country: { type: DataTypes.STRING, allowNull: true },
+    isActive: { type: DataTypes.BOOLEAN, allowNull: false },
+    metadata: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      get: function () {
+        return JSON.parse(this.getDataValue('metadata'));
+      },
+      set: function (value) {
+        return this.setDataValue('metadata', JSON.stringify(value));
+      }
+    }
   },
   { timestamps: true, version: true }
 );
@@ -51,7 +64,10 @@ async function createUser(user) {
   const userData = await User.create({
     name: user.name,
     age: user.age,
-    address: user.address
+    address: user.address,
+    country: user.country,
+    isActive: user.isActive,
+    metadata: user.metadata || {}
   });
   logger.debug(`createUser: creating user: ${JSON.stringify(user)}`);
   return userData;
@@ -66,6 +82,8 @@ async function updateUser(id, user) {
   if (user.age) result.age = user.age;
   if (user.address) result.address = user.address;
   if (user.name) result.name = user.name;
+  if (user.isActive != undefined) result.isActive = user.isActive;
+  if (user.metadata) result.metadata = user.metadata;
   logger.debug(`updateUser: updated user: ${JSON.stringify(user)}`);
   return await result.save();
 }
@@ -78,15 +96,34 @@ async function deleteUser(id) {
   }
   return true;
 }
-async function getUsers(top, skip) {
-  const result = await User.findAndCountAll({
-    where: {},
-    limit: top,
-    offset: skip
+async function getUsers(top, skip, filter, sortBy, projection) {
+  const sortConfig = queryHelper.transformSortBy(sortBy);
+  const filterConfig = queryHelper.transformQuery(filter);
+  const projectionConfig = queryHelper.transFormProjection(projection);
+
+  let sqlDataQuery = `SELECT ${projectionConfig} from Users ${filterConfig} LIMIT ${top} OFFSET ${skip}`;
+  logger.info(
+    `getUsers: getting users, top: ${top}, skip: ${skip}, filter: ${sqlDataQuery}, sortBy: ${sortConfig}, projection: ${projection}`
+  );
+  const data = await sequelize.query(sqlDataQuery, {
+    type: 'SELECT'
+  });
+  let sqlCountQuery = `SELECT COUNT(*) as count from Users ${filterConfig}`;
+  const count = await sequelize.query(sqlCountQuery, {
+    type: 'SELECT'
+  });
+  // fix metadata
+  data.forEach((element) => {
+    try {
+      element.metadata = JSON.parse(element.metadata);
+    } catch (error) {
+      element.metadata = {};
+      // log it
+    }
   });
   return {
-    count: result.count,
-    values: result.rows
+    count: count[0].count,
+    values: data
   };
 }
 
