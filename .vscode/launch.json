@@ -20,11 +20,19 @@
       "internalConsoleOptions": "openOnSessionStart"
     },
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}\\app",
+      "outputCapture": "std"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch filter test",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}\\api\\helpers\\queryFilterTest.js",
       "outputCapture": "std"
     }
   ]
