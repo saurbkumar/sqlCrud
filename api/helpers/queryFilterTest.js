@@ -1,4 +1,4 @@
-const filter = require('./mongoFilter');
+const filter = require('./sqlFilter');
 
 // console.log(filter.parse(`age in ( 'dd')`));
 console.log(

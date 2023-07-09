@@ -54,13 +54,15 @@
   }
 
   function transformDate(value) {
-    const transformedValue = new Date(value);
-    if (isNaN(transformedValue)) {
+    let transformedValue = new Date(value).toISOString(); // sql needs iso string
+    if (!isNaN(transformedValue)) {
       throw {
         message: `${value} is of type date, insert date in ISO format like: "<YYYY-mm-ddTHH:MM:ss>" or "<YYYY-mm-ddTHH:MM:ssZ>"`
       };
     }
-    return transformedValue;
+    transformedValue = transformedValue.split("Z")[0].split("T").join(" "); // 2023-07-09T18:04:41.011Z => 2023-07-09 18:04:41.011
+    // filed = 'name' operator = '=', value = 'saurabh' => field + operator + value => name=saureabh -- quotes are missing and that's why additional quotes added 
+    return `'${transformedValue}'`;// added additional quotes
   }
 
   function checkAllowedField(field) {
@@ -78,8 +80,11 @@
       let transformField;
       switch (targetType) {
         case 'string':
-          // do nothing
-          transformField = value;
+          if (Array.isArray(value)) {
+            transformField = value.map((element) => `'${element}'`);
+          } else {
+            transformField = `'${value}'`;
+          }
           break;
         case 'int':
           if (Array.isArray(value)) {
@@ -169,9 +174,9 @@
   }
 
   function transformOperatorExpression2Query(value, field, operator) {
-    const transformedValue = transformValue(value, field);
+    let transformedValue = transformValue(value, field);
     const trandformedOperator = transformOperator(operator);
-    const query = `${field} ${trandformedOperator} ${transformedValue}`;
+    const query = `${field} ${trandformedOperator} (${transformedValue})`;
     return query;
   }
   
@@ -181,7 +186,7 @@
     rightExpression
   ) {
     const trandformedOperator = transformOperator(operator);
-    const query = `${leftExpression} ${trandformedOperator} ${rightExpression}`;
+    const query = `(${leftExpression}) ${trandformedOperator} (${rightExpression})`;
     return query;
   }
 
@@ -218,9 +223,6 @@ AND
 
 OR
   = _ left:( SubExpression / Comparison /InComparison ) _ orTerm _ right:( OR / SubExpression / Comparison / InComparison ) _ {
-        const trandformedOperator = transformOperator("OR");
-    const query = {};
-    query[`${trandformedOperator}`] = [left, right];
     return transformBooleanExpression2Query("OR", left, right);
   }
 

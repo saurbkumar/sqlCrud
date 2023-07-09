@@ -30,7 +30,13 @@ class MYSQLHelper {
   async live() {
     return true;
   }
-  async ready() {}
+  async ready() {
+    // TODO Implement logic for the db liveness and readiness
+    return {
+      status: true,
+      message: `database connected, current database state `
+    };
+  }
 }
 
 module.exports = new MYSQLHelper(); // singleton

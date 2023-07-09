@@ -83,7 +83,14 @@ function transformSQLProjection(projection) {
       statusCode: 400
     };
   }
-  return sqlAddProjection.length > 0
-    ? sqlAddProjection.join(' ')
-    : Array.from(sqlRemoveProjection).join(',');
+  let sqlProjection = '';
+  if (sqlAddProjection.length > 0) {
+    if (!sqlAddProjection.includes('id')) {
+      sqlAddProjection.push('id'); // add id always
+    }
+    sqlProjection = sqlAddProjection.join(',');
+  } else {
+    sqlProjection = Array.from(sqlRemoveProjection).join(',');
+  }
+  return sqlProjection;
 }

@@ -19,7 +19,7 @@ const User = sequelize.define(
     age: { type: DataTypes.SMALLINT, allowNull: false },
     address: { type: DataTypes.STRING, allowNull: false },
     country: { type: DataTypes.STRING, allowNull: true },
-    isActive: { type: DataTypes.BOOLEAN, allowNull: false },
+    isActive: { type: DataTypes.BOOLEAN, allowNull: true },
     metadata: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -66,7 +66,7 @@ async function createUser(user) {
     age: user.age,
     address: user.address,
     country: user.country,
-    isActive: user.isActive,
+    isActive: user.isActive || false,
     metadata: user.metadata || {}
   });
   logger.debug(`createUser: creating user: ${JSON.stringify(user)}`);
@@ -101,10 +101,8 @@ async function getUsers(top, skip, filter, sortBy, projection) {
   const filterConfig = queryHelper.transformQuery(filter);
   const projectionConfig = queryHelper.transFormProjection(projection);
 
-  let sqlDataQuery = `SELECT ${projectionConfig} from Users ${filterConfig} LIMIT ${top} OFFSET ${skip}`;
-  logger.info(
-    `getUsers: getting users, top: ${top}, skip: ${skip}, filter: ${sqlDataQuery}, sortBy: ${sortConfig}, projection: ${projection}`
-  );
+  let sqlDataQuery = `SELECT ${projectionConfig} from Users ${filterConfig} ${sortConfig} LIMIT ${top} OFFSET ${skip}`;
+  logger.info(`getUsers: getting users, query: ${sqlDataQuery}`);
   const data = await sequelize.query(sqlDataQuery, {
     type: 'SELECT'
   });
@@ -123,13 +121,15 @@ async function getUsers(top, skip, filter, sortBy, projection) {
   });
   return {
     count: count[0].count,
-    values: data
+    value: data
   };
 }
 
-async function deleteUsers() {
-  let result = await User.destroy({ where: {} });
-  return { count: result };
+async function deleteUsers(filter) {
+  const filterConfig = queryHelper.transformQuery(filter);
+  let sqlDataQuery = `DELETE from Users ${filterConfig}`;
+  const result = await sequelize.query(sqlDataQuery);
+  return { count: result[0].affectedRows };
 }
 
 function copy(dbObj) {
