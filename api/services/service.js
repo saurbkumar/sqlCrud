@@ -1,5 +1,4 @@
 const model = require('../models/model');
-
 module.exports = {
   getUser: getUser,
   createUser: createUser,
@@ -24,10 +23,10 @@ async function deleteUser(id) {
   return await model.deleteUser(id);
 }
 
-async function getUsers(top, skip) {
-  return await model.getUsers(top, skip);
+async function getUsers(top, skip, filter, sortBy, projection) {
+  return await model.getUsers(top, skip, filter, sortBy, projection);
 }
 
-async function deleteUsers() {
-  return await model.deleteUsers();
+async function deleteUsers(filter) {
+  return await model.deleteUsers(filter);
 }
