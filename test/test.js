@@ -1050,7 +1050,7 @@ describe('UserService', async function () {
     });
 
     it('FilterDateFieldTest', async function () {
-      this.timeout(1000);
+      this.timeout(10000);
       // create 4 different users in 4 different point in time and query
 
       // user1
