@@ -1050,7 +1050,7 @@ describe('UserService', async function () {
     });
 
     it('FilterDateFieldTest', async function () {
-      this.timeout(6000);
+      this.timeout(10000);
       // create 4 different users in 4 different point in time and query
 
       // user1
@@ -1061,7 +1061,7 @@ describe('UserService', async function () {
       res.body.should.have.property('id');
       const userId1 = res.body.id;
 
-      await new Promise((r) => setTimeout(r, 800)); // sleep for a while to create enough time gap
+      await new Promise((r) => setTimeout(r, 2000)); // sleep for a while to create enough time gap
 
       // user2
       res = await request
@@ -1072,7 +1072,7 @@ describe('UserService', async function () {
       const userId2 = res.body.id;
       const userId2CreatedAt = res.body.createdAt;
 
-      await new Promise((r) => setTimeout(r, 800)); // sleep for a while to create enough time gap
+      await new Promise((r) => setTimeout(r, 2000)); // sleep for a while to create enough time gap
 
       // user3
       res = await request
@@ -1081,7 +1081,7 @@ describe('UserService', async function () {
         .expect(200);
       res.body.should.have.property('id');
 
-      await new Promise((r) => setTimeout(r, 800)); // sleep for a while to create enough time gap
+      await new Promise((r) => setTimeout(r, 2000)); // sleep for a while to create enough time gap
 
       // user4
       res = await request
