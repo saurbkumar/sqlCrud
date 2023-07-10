@@ -13,6 +13,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: 'unittest'
+          MYSQL_USER: 'admin'
+          MYSQL_PASSWORD: 'admin'
+        ports:
+          - '3306:3306'
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     strategy:
       matrix:
         node-version: [18.x]
@@ -26,9 +37,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Start mysql
-        run: mysql -uadmin -h127.0.0.1 -padmin -e 'CREATE DATABASE IF NOT EXISTS unittest;' #create and run mysql database with password admin
 
       - name: Install dependencies
         run: npm install
