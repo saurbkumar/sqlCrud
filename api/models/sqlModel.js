@@ -4,7 +4,7 @@ const logger = require('../../logger')(__filename);
 const { DataTypes } = require('sequelize');
 const sqlHelper = require('../helpers/sqlHelper');
 const shortId = require('../helpers/shortId');
-const queryHelper = require('../helpers/queryHelper');
+const queryHelper = require('../helpers/sqlQueryHelper');
 
 const sequelize = sqlHelper.connect(config.Database);
 const User = sequelize.define(
@@ -98,8 +98,8 @@ async function deleteUser(id) {
 }
 async function getUsers(top, skip, filter, sortBy, projection) {
   const sortConfig = queryHelper.transformSortBy(sortBy);
-  const filterConfig = queryHelper.transformQuery(filter);
-  const projectionConfig = queryHelper.transFormProjection(projection);
+  const filterConfig = queryHelper.transformFilterQuery(filter);
+  const projectionConfig = queryHelper.transformProjection(projection);
 
   let sqlDataQuery = `SELECT ${projectionConfig} from Users ${filterConfig} ${sortConfig} LIMIT ${top} OFFSET ${skip}`;
   logger.info(`getUsers: getting users, query: ${sqlDataQuery}`);
@@ -126,7 +126,7 @@ async function getUsers(top, skip, filter, sortBy, projection) {
 }
 
 async function deleteUsers(filter) {
-  const filterConfig = queryHelper.transformQuery(filter);
+  const filterConfig = queryHelper.transformFilterQuery(filter);
   let sqlDataQuery = `DELETE from Users ${filterConfig}`;
   const result = await sequelize.query(sqlDataQuery);
   return { count: result[0].affectedRows };

@@ -2,7 +2,7 @@ const service = require('../services/service');
 const logger = require('../../logger')(__filename);
 
 const middlewares = require('../helpers/middlewares');
-const queryHelper = require('../helpers/queryHelper');
+const paginationHelper = require('../helpers/paginationHelper');
 
 module.exports = {
   getUser: middlewares.controllerMiddleware(getUser),
@@ -78,7 +78,10 @@ async function getUsers(req, res) {
       req.query.$sortBy,
       req.query.$projection
     );
-    const links = queryHelper.generatePaginationLinks(fullUrl, result.count);
+    const links = paginationHelper.generatePaginationLinks(
+      fullUrl,
+      result.count
+    );
     result = { ...result, ...links };
     return res.json(result);
   } catch (error) /* istanbul ignore next */ {
