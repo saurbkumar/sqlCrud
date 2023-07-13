@@ -2,7 +2,7 @@ const service = require('../services/service');
 const logger = require('../../logger')(__filename);
 
 const middlewares = require('../helpers/middlewares');
-const queryHelper = require('../helpers/queryHelper');
+const queryHelper = require('../helpers/paginationHelper');
 
 module.exports = {
   getUser: middlewares.controllerMiddleware(getUser),

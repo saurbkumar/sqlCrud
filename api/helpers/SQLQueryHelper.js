@@ -1,4 +1,7 @@
 const queryHooks = require('./queryHooks');
+const logger = require('../../logger')(__filename);
+const filter = require('./sqlFilter');
+
 const allowedSortFields = new Set(queryHooks.mapping().sortFields);
 const queryFields = queryHooks
   .mapping()
@@ -6,7 +9,8 @@ const queryFields = queryHooks
 const queryFieldsSet = new Set(queryFields);
 module.exports = {
   transformSortBy: transformSQLSortBy,
-  transformProjection: transformSQLProjection
+  transformProjection: transformSQLProjection,
+  transformQuery: transformQuery
 };
 
 function transformSQLSortBy(sortBy) {
@@ -71,7 +75,7 @@ function transformSQLProjection(projection) {
         // need to keep this field in the SQL query
         sqlAddProjection.push(projectionField);
       } else {
-        // need to remove this field in the SQL query
+        //  need to remove this field in the SQL query
         sqlRemoveProjection.delete(projectionField);
       }
       projectionFields.push(projectionField);
@@ -93,4 +97,21 @@ function transformSQLProjection(projection) {
     sqlProjection = Array.from(sqlRemoveProjection).join(',');
   }
   return sqlProjection;
+}
+
+function transformQuery(query) {
+  let transformedQuery = '';
+  if (query) {
+    try {
+      transformedQuery = filter.parse(query);
+    } catch (error) {
+      const messaage = error.message || 'bad query';
+      logger.error(
+        `transformQuery: error while parsing query, error: ${messaage}`
+      );
+      throw { messaage: messaage, statusCode: 400 };
+    }
+    transformedQuery = `WHERE ${transformedQuery}`;
+  }
+  return transformedQuery;
 }
