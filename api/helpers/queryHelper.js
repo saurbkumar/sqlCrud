@@ -1,11 +1,6 @@
 const querystring = require('querystring');
 
-const queryHelper = require('./SQLQueryHelper');
-
 module.exports = {
-  transformSortBy: queryHelper.transformSortBy,
-  transformQuery: queryHelper.transformQuery,
-  transFormProjection: queryHelper.transformProjection,
   generatePaginationLinks: generatePaginationLinks
 };
 
