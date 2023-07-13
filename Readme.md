@@ -2,7 +2,7 @@
 
 <div id="top"></div>
 
-## About The Project
+## About The Pro ject
 
 A full fledge rest app powered by express. The idea of this project is to bring up your microservices fast, with inbuilt request validations, connection to the database
 and fully working rest APIs.  
