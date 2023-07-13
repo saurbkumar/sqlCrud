@@ -2,7 +2,7 @@
 const dbHelper = require('../helpers/sqlHelper');
 const components = [
   {
-    name: 'mongoDB',
+    name: 'sql-db',
     live: dbHelper.live,
     ready: dbHelper.ready
   }
