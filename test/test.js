@@ -14,7 +14,8 @@ logger('unittest.log').switchToFile();
 
 const v1BasePath = '/v1/user-service';
 
-const queryHelper = require('../api/helpers/queryHelper');
+const queryHelper = require('../api/helpers/sqlQueryHelper');
+const paginationHelper = require('../api/helpers/paginationHelper');
 const healthModel = require('../api/models/healthModel');
 const healthService = require('../api/services/healthService');
 
@@ -1239,7 +1240,7 @@ describe('UserService', async function () {
       // top is 10 and skip is 0 in the url
       let url =
         'http://localhost:3000/v1/user-service/users?%24top=10&%24skip=0&%24filter=age%20%3E%20%2710%27&%24sortBy=%2Bage%20%20%20%2Bname&%24projection=-name%20%20%20-age';
-      let links = queryHelper.generatePaginationLinks(url, 30);
+      let links = paginationHelper.generatePaginationLinks(url, 30);
 
       links.should.have.propertyByPath('first', 'href');
       _checkURL(links.first.href, url);
@@ -1265,7 +1266,7 @@ describe('UserService', async function () {
       // check next pagination links
       const nextLink = links.next.href;
       const lastLink = links.last.href;
-      links = queryHelper.generatePaginationLinks(nextLink, 30);
+      links = paginationHelper.generatePaginationLinks(nextLink, 30);
 
       links.should.have.propertyByPath('first', 'href');
       _checkURL(links.first.href, url);
