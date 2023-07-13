@@ -75,7 +75,7 @@ function transformSQLProjection(projection) {
         // need to keep this field in the SQL query
         sqlAddProjection.push(projectionField);
       } else {
-        // need to remove this field in the SQL query
+        //  need to remove this field in the SQL query
         sqlRemoveProjection.delete(projectionField);
       }
       projectionFields.push(projectionField);

@@ -4,7 +4,7 @@ const logger = require('../../logger')(__filename);
 const { DataTypes } = require('sequelize');
 const sqlHelper = require('../helpers/sqlHelper');
 const shortId = require('../helpers/shortId');
-const queryHelper = require('../helpers/sqlQueryHelper');
+const queryHelper = require('../helpers/SQLQueryHelper');
 
 const sequelize = sqlHelper.connect(config.Database);
 const User = sequelize.define(

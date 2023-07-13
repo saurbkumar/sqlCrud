@@ -14,7 +14,7 @@ logger('unittest.log').switchToFile();
 
 const v1BasePath = '/v1/user-service';
 
-const queryHelper = require('../api/helpers/sqlQueryHelper');
+const queryHelper = require('../api/helpers/SQLQueryHelper');
 const paginationHelper = require('../api/helpers/paginationHelper');
 const healthModel = require('../api/models/healthModel');
 const healthService = require('../api/services/healthService');
