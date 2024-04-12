@@ -15,7 +15,7 @@
     "express-openapi-validator": "^4.13.4",
     "lru-cache": "^7.4.0",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.9.4",
     "nanoid": "^3.1.30",
     "sequelize": "^6.13.0",
     "prom-client": "^14.0.1",
